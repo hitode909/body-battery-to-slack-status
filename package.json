@@ -22,8 +22,12 @@
   },
   "devDependencies": {
     "@types/node": "^10.0.3",
+    "@types/puppeteer": "^2.0.1",
     "gts": "^1.1.2",
     "ts-node": "^8.6.2",
     "typescript": "~3.7.0"
+  },
+  "dependencies": {
+    "puppeteer": "^2.1.1"
   }
 }
