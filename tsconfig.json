@@ -3,7 +3,8 @@
   "compilerOptions": {
     "rootDir": ".",
     "outDir": "build",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "lib": ["ES2020", "DOM"]
   },
   "include": [
     "src/**/*.ts",
