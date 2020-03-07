@@ -25,8 +25,10 @@ class StatusUpdator {
   async update(values: Values) {
     const emoji = this.formatEmoji(values);
     const message = this.formatStatus(values);
-    const uri = 'https://slack.com/api/users.profile.set';
-    const options = {
+
+    console.log(`Set Slack Status. emoji: ${emoji}, message: ${message}`);
+
+    const res = await request('https://slack.com/api/users.profile.set', {
       method: 'POST',
       form: {
         token: this.token,
@@ -35,13 +37,11 @@ class StatusUpdator {
           status_text: message,
         }),
       },
-    };
+      json: true,
+    });
 
-    console.log(`Set Slack Status. emoji: ${emoji}, message: ${message}`);
-
-    const res = await request(uri, options);
     if (!res.ok) {
-      throw new Error(res);
+      throw new Error(JSON.stringify(res));
     }
   }
 
@@ -177,7 +177,7 @@ const main = async () => {
   while (true) {
     try {
       const status = await crawler.getLatestValues();
-      su.update(status);
+      await su.update(status);
     } catch (error) {
       console.warn(error);
       crawler.login();
