@@ -1,23 +1,13 @@
-console.log('Try npm run check/fix!');
+import puppeteer from 'puppeteer';
 
-const longString =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ut aliquet diam.';
+const main = async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  const url = 'https://connect.garmin.com/signin/';
+  await page.goto(url);
+  console.log(await page.title());
 
-const trailing = 'Semicolon';
+  await browser.close();
+};
 
-const why = 'am I tabbed?';
-
-export function doSomeStuff(
-  withThis: string,
-  andThat: string,
-  andThose: string[]
-) {
-  //function on one line
-  if (!andThose.length) {
-    return false;
-  }
-  console.log(withThis);
-  console.log(andThat);
-  console.dir(andThose);
-}
-// TODO: more examples
+main();
