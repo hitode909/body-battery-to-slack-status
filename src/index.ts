@@ -115,8 +115,10 @@ class Crawler {
   private authInfo: AuthInfo;
   private browser?: puppeteer.Browser;
   private page?: puppeteer.Page;
+  loggedIn: boolean;
   constructor(authInfo: AuthInfo) {
     this.authInfo = authInfo;
+    this.loggedIn = false;
   }
   private async getPage(): Promise<puppeteer.Page> {
     if (!this.page) {
@@ -143,6 +145,7 @@ class Crawler {
     await frame.type('input#password', this.authInfo.password);
     await frame.click('#login-btn-signin');
     await page.waitForNavigation({ waitUntil: 'networkidle0' });
+    this.loggedIn = true;
   }
   async getLatestValues(): Promise<Values> {
     const page = await this.getPage();
@@ -171,17 +174,21 @@ class Crawler {
 
 const main = async () => {
   const auth = AuthInfo.newFromEnv();
-  const crawler = new Crawler(auth);
+  let crawler = new Crawler(auth);
   const su = new StatusUpdator(auth);
-  await crawler.login();
+
   while (true) {
     try {
+      console.log('Crawling');
+      if (!crawler.loggedIn) await crawler.login();
       const status = await crawler.getLatestValues();
       await su.update(status);
     } catch (error) {
       console.warn(error);
-      crawler.login();
+      crawler.close();
+      crawler = new Crawler(auth);
     }
+    console.log('Sleep');
     await sleep(60 * 10 * 1000); // sleep 10 min
   }
 };
