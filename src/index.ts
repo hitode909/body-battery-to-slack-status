@@ -54,7 +54,7 @@ class StatusUpdator {
     const stress = last(last(args.stress.stressValuesArray));
     const bodyBattery = last(last(args.stress.bodyBatteryValuesArray));
     const heartRate = last(last(args.heartRate.heartRateValues));
-    // const date = new Date(first(last(args.heartRate.heartRateValues)));
+
     return `🔋${bodyBattery} 🧠${stress} 💗${heartRate}`;
   };
 }
