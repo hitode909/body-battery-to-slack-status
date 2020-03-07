@@ -2,8 +2,7 @@
   "name": "body-battery-to-slack-status",
   "version": "0.0.0",
   "description": "",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "bin": "build/src/index.js",
   "files": [
     "build/src"
   ],
