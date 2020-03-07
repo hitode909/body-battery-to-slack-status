@@ -5,9 +5,6 @@ import request from 'request-promise';
 function sleep<T>(msec: number): Promise<T> {
   return new Promise(resolve => setTimeout(resolve, msec));
 }
-function first<T>(arg: T[]): T {
-  return arg[0];
-}
 function last<T>(arg: T[]): T {
   return arg[arg.length - 1];
 }
@@ -20,8 +17,10 @@ interface Values {
 
 class StatusUpdator {
   token: string;
-  constructor(token: { slackLegacyToken: string }) {
-    this.token = token.slackLegacyToken;
+  emojis: string | undefined;
+  constructor(args: { slackLegacyToken: string, emojis: string | undefined }) {
+    this.token = args.slackLegacyToken;
+    this.emojis = args.emojis;
   }
 
   async update(values: Values) {
@@ -39,15 +38,21 @@ class StatusUpdator {
       },
     };
 
-    console.log({emoji, message});
+    console.log(`Set Slack Status. emoji: ${emoji}, message: ${message}`);
 
     const res = await request(uri, options);
-    console.log(res);
+    if (!res.ok) {
+      throw new Error(res);
+    }
   }
 
   formatEmoji(args: Values): string {
+    const emojis = this.emojis || this.defaultEmojis;
+    const emojiItems = emojis.split(/:|\s+/).filter(s=>s).map(s => `:${s}:`);
     const bodyBattery = last(last(args.stress.bodyBatteryValuesArray));
-    return `:condition_${Math.floor(bodyBattery / 16)}:`;
+    const bodyBatteryMax = 100;
+    const emoji = emojiItems[Math.floor((bodyBattery / bodyBatteryMax) * emojiItems.length)];
+    return emoji;
   }
 
   formatStatus(args: Values): string {
@@ -57,6 +62,10 @@ class StatusUpdator {
 
     return `🔋${bodyBattery} 🧠${stress} 💗${heartRate}`;
   };
+
+  private get defaultEmojis(): string {
+    return 'weary confounded persevere disappointed wink slightly_smiling_face sweat_smile smiley laughing star-struck';
+  }
 }
 
 
@@ -64,10 +73,12 @@ class AuthInfo {
   mailAddress: string;
   password: string;
   slackLegacyToken: string;
-  constructor(mailAddress: string, password: string, slackLegacyToken: string) {
+  emojis: string | undefined;
+  constructor(mailAddress: string, password: string, slackLegacyToken: string, emojis: string | undefined) {
     this.mailAddress = mailAddress;
     this.password = password;
     this.slackLegacyToken = slackLegacyToken;
+    this.emojis = emojis;
   }
   static newFromEnv(): AuthInfo {
     const MAIL_ADDRESS = process.env['GARMIN_MAIL_ADDRESS'];
@@ -82,7 +93,7 @@ class AuthInfo {
     if (!SLACK_LEGACY_TOKEN) {
       throw new Error('Please set SLACK_LEGACY_TOKEN');
     }
-    return new AuthInfo(MAIL_ADDRESS, PASSWORD, SLACK_LEGACY_TOKEN);
+    return new AuthInfo(MAIL_ADDRESS, PASSWORD, SLACK_LEGACY_TOKEN, process.env['EMOJIS']);
   }
 }
 
@@ -101,6 +112,7 @@ class Crawler {
     return this.page;
   }
   async login() {
+    console.log('Login to Garmin Connect');
     const page = await this.getPage();
     const url = 'https://connect.garmin.com/signin/';
     await page.goto(url, { waitUntil: 'networkidle0' });
