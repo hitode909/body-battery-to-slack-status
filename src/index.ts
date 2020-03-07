@@ -64,7 +64,7 @@ class StatusUpdator {
   };
 
   private get defaultEmojis(): string {
-    return 'weary confounded persevere disappointed wink slightly_smiling_face sweat_smile smiley laughing star-struck';
+    return 'weary confounded persevere disappointed slightly_smiling_face wink sweat_smile smiley laughing star-struck';
   }
 }
 
