@@ -16,6 +16,7 @@ $ GARMIN_MAIL_ADDRESS=... GARMIN_PASSWORD=... SLACK_LEGACY_TOKEN=... npm start
 
 ## CUSTOMIZE EMOJI
 
+Default emoji set is 😫😖😣😞😉🙂😅😃😆🤩.
 You can set EMOJIS environment variable to customize status emoji set.
 
 For example,
