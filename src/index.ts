@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer';
+import request from 'request-promise';
 
 
 function sleep<T>(msec: number): Promise<T> {
@@ -10,25 +11,63 @@ function first<T>(arg: T[]): T {
 function last<T>(arg: T[]): T {
   return arg[arg.length - 1];
 }
+
 type Metrics = Array<[number, number]>;
 interface Values {
   stress: { stressValuesArray: Metrics; bodyBatteryValuesArray: Metrics };
   heartRate: { heartRateValues: Metrics };
 }
-const formatStatus = (args: Values): string => {
-  const stress = last(last(args.stress.stressValuesArray));
-  const bodyBattery = last(last(args.stress.bodyBatteryValuesArray));
-  const heartRate = last(last(args.heartRate.heartRateValues));
-  const date = new Date(first(last(args.heartRate.heartRateValues)));
-  return `${date} bodyBattery: ${bodyBattery} stress: ${stress} heartRate: ${heartRate}`;
-};
+
+class StatusUpdator {
+  token: string;
+  constructor(token: { slackLegacyToken: string }) {
+    this.token = token.slackLegacyToken;
+  }
+
+  async update(values: Values) {
+    const emoji = this.formatEmoji(values);
+    const message = this.formatStatus(values);
+    const uri = 'https://slack.com/api/users.profile.set';
+    const options = {
+      method: 'POST',
+      form: {
+        token: this.token,
+        profile: JSON.stringify({
+          status_emoji: emoji,
+          status_text: message,
+        })
+      },
+    };
+
+    console.log({emoji, message});
+
+    const res = await request(uri, options);
+    console.log(res);
+  }
+
+  formatEmoji(args: Values): string {
+    const bodyBattery = last(last(args.stress.bodyBatteryValuesArray));
+    return `:condition_${Math.floor(bodyBattery / 16)}:`;
+  }
+
+  formatStatus(args: Values): string {
+    const stress = last(last(args.stress.stressValuesArray));
+    const bodyBattery = last(last(args.stress.bodyBatteryValuesArray));
+    const heartRate = last(last(args.heartRate.heartRateValues));
+    // const date = new Date(first(last(args.heartRate.heartRateValues)));
+    return `🔋${bodyBattery} 🧠${stress} 💗${heartRate}`;
+  };
+}
+
 
 class AuthInfo {
   mailAddress: string;
   password: string;
-  constructor(mailAddress: string, password: string) {
+  slackLegacyToken: string;
+  constructor(mailAddress: string, password: string, slackLegacyToken: string) {
     this.mailAddress = mailAddress;
     this.password = password;
+    this.slackLegacyToken = slackLegacyToken;
   }
   static newFromEnv(): AuthInfo {
     const MAIL_ADDRESS = process.env['GARMIN_MAIL_ADDRESS'];
@@ -39,7 +78,11 @@ class AuthInfo {
     if (!PASSWORD) {
       throw new Error('Please set GARMIN_PASSWORD');
     }
-    return new AuthInfo(MAIL_ADDRESS, PASSWORD);
+    const SLACK_LEGACY_TOKEN = process.env['SLACK_LEGACY_TOKEN'];
+    if (!SLACK_LEGACY_TOKEN) {
+      throw new Error('Please set SLACK_LEGACY_TOKEN');
+    }
+    return new AuthInfo(MAIL_ADDRESS, PASSWORD, SLACK_LEGACY_TOKEN);
   }
 }
 
@@ -101,16 +144,17 @@ class Crawler {
 const main = async () => {
   const auth = AuthInfo.newFromEnv();
   const crawler = new Crawler(auth);
+  const su = new StatusUpdator(auth);
   await crawler.login();
   while (true) {
     try {
       const status = await crawler.getLatestValues();
-      console.log(formatStatus(status));
+      su.update(status);
     } catch (error) {
       console.warn(error);
       crawler.login();
     }
-    await sleep(60 * 1000);
+    await sleep(60 * 10 * 1000); // sleep 10 min
   }
 };
 
