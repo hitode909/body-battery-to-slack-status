@@ -1,5 +1,9 @@
 import puppeteer from 'puppeteer';
 
+
+function sleep<T>(msec: number): Promise<T> {
+  return new Promise(resolve => setTimeout(resolve, msec));
+}
 function first<T>(arg: T[]): T {
   return arg[0];
 }
@@ -48,7 +52,7 @@ class Crawler {
   }
   private async getPage(): Promise<puppeteer.Page> {
     if (!this.page) {
-      this.browser = await puppeteer.launch();
+      this.browser = await puppeteer.launch({ headless: !process.env['DEBUG'] });
       this.page = await this.browser.newPage();
     }
     return this.page;
@@ -98,9 +102,16 @@ const main = async () => {
   const auth = AuthInfo.newFromEnv();
   const crawler = new Crawler(auth);
   await crawler.login();
-  const status = await crawler.getLatestValues();
-  console.log(formatStatus(status));
-  await crawler.close();
+  while (true) {
+    try {
+      const status = await crawler.getLatestValues();
+      console.log(formatStatus(status));
+    } catch (error) {
+      console.warn(error);
+      crawler.login();
+    }
+    await sleep(60 * 1000);
+  }
 };
 
 main();
