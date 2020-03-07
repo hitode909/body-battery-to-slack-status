@@ -25,9 +25,7 @@ const main = async () => {
   const page = await browser.newPage();
   const url = 'https://connect.garmin.com/signin/';
   await page.goto(url, {waitUntil: 'networkidle0'});
-  await page.screenshot({path: 'a-1.png'});
   await page.waitForSelector('iframe.gauth-iframe');
-  await page.screenshot({path: 'a-2.png'});
 
   const frame = page.frames().find(f => f.url().match(/sso/));
   if (!frame) { console.warn('Login form not found'); process.exit(1); }
