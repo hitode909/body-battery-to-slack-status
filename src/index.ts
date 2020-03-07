@@ -1,7 +1,6 @@
 import puppeteer from 'puppeteer';
 import request from 'request-promise';
 
-
 function sleep<T>(msec: number): Promise<T> {
   return new Promise(resolve => setTimeout(resolve, msec));
 }
@@ -18,7 +17,7 @@ interface Values {
 class StatusUpdator {
   token: string;
   emojis: string | undefined;
-  constructor(args: { slackLegacyToken: string, emojis: string | undefined }) {
+  constructor(args: { slackLegacyToken: string; emojis: string | undefined }) {
     this.token = args.slackLegacyToken;
     this.emojis = args.emojis;
   }
@@ -34,7 +33,7 @@ class StatusUpdator {
         profile: JSON.stringify({
           status_emoji: emoji,
           status_text: message,
-        })
+        }),
       },
     };
 
@@ -48,10 +47,16 @@ class StatusUpdator {
 
   formatEmoji(args: Values): string {
     const emojis = this.emojis || this.defaultEmojis;
-    const emojiItems = emojis.split(/:|\s+/).filter(s=>s).map(s => `:${s}:`);
+    const emojiItems = emojis
+      .split(/:|\s+/)
+      .filter(s => s)
+      .map(s => `:${s}:`);
     const bodyBattery = last(last(args.stress.bodyBatteryValuesArray));
     const bodyBatteryMax = 100;
-    const emoji = emojiItems[Math.floor((bodyBattery / bodyBatteryMax) * emojiItems.length)];
+    const emoji =
+      emojiItems[
+        Math.floor((bodyBattery / bodyBatteryMax) * emojiItems.length)
+      ];
     return emoji;
   }
 
@@ -61,20 +66,24 @@ class StatusUpdator {
     const heartRate = last(last(args.heartRate.heartRateValues));
 
     return `🔋${bodyBattery} 🧠${stress} 💗${heartRate}`;
-  };
+  }
 
   private get defaultEmojis(): string {
     return 'weary confounded persevere disappointed slightly_smiling_face wink sweat_smile smiley laughing star-struck';
   }
 }
 
-
 class AuthInfo {
   mailAddress: string;
   password: string;
   slackLegacyToken: string;
   emojis: string | undefined;
-  constructor(mailAddress: string, password: string, slackLegacyToken: string, emojis: string | undefined) {
+  constructor(
+    mailAddress: string,
+    password: string,
+    slackLegacyToken: string,
+    emojis: string | undefined
+  ) {
     this.mailAddress = mailAddress;
     this.password = password;
     this.slackLegacyToken = slackLegacyToken;
@@ -93,7 +102,12 @@ class AuthInfo {
     if (!SLACK_LEGACY_TOKEN) {
       throw new Error('Please set SLACK_LEGACY_TOKEN');
     }
-    return new AuthInfo(MAIL_ADDRESS, PASSWORD, SLACK_LEGACY_TOKEN, process.env['EMOJIS']);
+    return new AuthInfo(
+      MAIL_ADDRESS,
+      PASSWORD,
+      SLACK_LEGACY_TOKEN,
+      process.env['EMOJIS']
+    );
   }
 }
 
@@ -106,7 +120,9 @@ class Crawler {
   }
   private async getPage(): Promise<puppeteer.Page> {
     if (!this.page) {
-      this.browser = await puppeteer.launch({ headless: !process.env['DEBUG'] });
+      this.browser = await puppeteer.launch({
+        headless: !process.env['DEBUG'],
+      });
       this.page = await this.browser.newPage();
     }
     return this.page;
