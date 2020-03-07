@@ -7,7 +7,10 @@ function last<T>(arg: T[]): T {
   return arg[arg.length - 1];
 }
 type Metrics = Array<[number, number]>;
-interface Values { stress: { stressValuesArray: Metrics, bodyBatteryValuesArray: Metrics }, heartRate: { heartRateValues: Metrics } };
+interface Values {
+  stress: { stressValuesArray: Metrics; bodyBatteryValuesArray: Metrics };
+  heartRate: { heartRateValues: Metrics };
+}
 const formatStatus = (args: Values): string => {
   const stress = last(last(args.stress.stressValuesArray));
   const bodyBattery = last(last(args.stress.bodyBatteryValuesArray));
@@ -25,9 +28,13 @@ class AuthInfo {
   }
   static newFromEnv(): AuthInfo {
     const MAIL_ADDRESS = process.env['GARMIN_MAIL_ADDRESS'];
-    if (!MAIL_ADDRESS) { throw new Error('Please set GARMIN_MAIL_ADDRESS'); }
+    if (!MAIL_ADDRESS) {
+      throw new Error('Please set GARMIN_MAIL_ADDRESS');
+    }
     const PASSWORD = process.env['GARMIN_PASSWORD'];
-    if (!PASSWORD) { throw new Error('Please set GARMIN_PASSWORD'); }
+    if (!PASSWORD) {
+      throw new Error('Please set GARMIN_PASSWORD');
+    }
     return new AuthInfo(MAIL_ADDRESS, PASSWORD);
   }
 }
@@ -53,7 +60,9 @@ class Crawler {
     await page.waitForSelector('iframe.gauth-iframe');
 
     const frame = page.frames().find(f => f.url().match(/sso/));
-    if (!frame) { throw new Error('Login form not found'); }
+    if (!frame) {
+      throw new Error('Login form not found');
+    }
     await frame.waitForSelector('input#username');
     await frame.type('input#username', this.authInfo.mailAddress);
     await frame.type('input#password', this.authInfo.password);
@@ -63,16 +72,24 @@ class Crawler {
   async getLatestValues(): Promise<Values> {
     const page = await this.getPage();
     const today = new Date().toISOString().substr(0, 10);
-    await page.goto(`https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailyStress/${today}`);
-    const stress = JSON.parse(await page.evaluate(() => document.body.textContent) || 'null');
-    await page.goto(`https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailyHeartRate/?date=${today}`);
-    const heartRate = JSON.parse(await page.evaluate(() => document.body.textContent) || 'null');
+    await page.goto(
+      `https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailyStress/${today}`
+    );
+    const stress = JSON.parse(
+      (await page.evaluate(() => document.body.textContent)) || 'null'
+    );
+    await page.goto(
+      `https://connect.garmin.com/modern/proxy/wellness-service/wellness/dailyHeartRate/?date=${today}`
+    );
+    const heartRate = JSON.parse(
+      (await page.evaluate(() => document.body.textContent)) || 'null'
+    );
     return { stress, heartRate };
   }
 
   async close() {
     if (this.browser) {
-     await this.browser.close();
+      await this.browser.close();
     }
   }
 }
