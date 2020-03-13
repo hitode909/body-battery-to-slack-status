@@ -3,7 +3,6 @@
 name: Run
 on:
   pull_request:
-  push:
   schedule:
   - cron: '*/15 * * * *'
 jobs:
