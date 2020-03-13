@@ -2,12 +2,8 @@
 
 name: Run
 on:
-  pull_request:
-  push:
-    branches:
-      - master
   schedule:
-  - cron: '*/15 * * * *'
+  - cron: '0 * * * *'
 jobs:
   post:
     runs-on: ubuntu-latest
