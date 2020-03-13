@@ -177,19 +177,28 @@ const main = async () => {
   let crawler = new Crawler(auth);
   const su = new StatusUpdator(auth);
 
-  while (true) {
-    try {
-      console.log('Crawling');
-      if (!crawler.loggedIn) await crawler.login();
-      const status = await crawler.getLatestValues();
-      await su.update(status);
-    } catch (error) {
-      console.warn(error);
-      crawler.close();
-      crawler = new Crawler(auth);
+  if (process.env['CI']) {
+    // run once
+    await crawler.login();
+    const status = await crawler.getLatestValues();
+    await su.update(status);
+    process.exit(0);
+  } else {
+    // daemon mode
+    while (true) {
+      try {
+        console.log('Crawling');
+        if (!crawler.loggedIn) await crawler.login();
+        const status = await crawler.getLatestValues();
+        await su.update(status);
+      } catch (error) {
+        console.warn(error);
+        crawler.close();
+        crawler = new Crawler(auth);
+      }
+      console.log('Sleep');
+      await sleep(60 * 10 * 1000); // sleep 10 min
     }
-    console.log('Sleep');
-    await sleep(60 * 10 * 1000); // sleep 10 min
   }
 };
 
