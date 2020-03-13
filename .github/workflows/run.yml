@@ -29,3 +29,4 @@ jobs:
         GARMIN_MAIL_ADDRESS: ${{ secrets.GARMIN_MAIL_ADDRESS }}
         GARMIN_PASSWORD: ${{ secrets.GARMIN_PASSWORD }}
         SLACK_LEGACY_TOKEN: ${{ secrets.SLACK_LEGACY_TOKEN }}
+        CI: 1
