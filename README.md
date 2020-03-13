@@ -37,6 +37,14 @@ will make the rule below.
 | 34〜66       | 🦋    |
 | 67〜100      | 🐝    |
 
+## RUN ON CI
+
+Default behavior is daemon mode. To run on CI service(like a GitHub Actions), set `CI=true` to run only once.
+
+```
+CI=true npm start
+```
+
 
 ## TODO
 
