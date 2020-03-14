@@ -179,10 +179,15 @@ const main = async () => {
 
   if (process.env['CI']) {
     // run once
-    await crawler.login();
-    const status = await crawler.getLatestValues();
-    await su.update(status);
-    process.exit(0);
+    try {
+      await crawler.login();
+      const status = await crawler.getLatestValues();
+      await su.update(status);
+      process.exit(0);
+    } catch(error) {
+      console.warn(error);
+      process.exit(1);
+    }
   } else {
     // daemon mode
     while (true) {
