@@ -14,7 +14,7 @@ jobs:
       - name: validate renovate.json
         run: |
           jq . < renovate.json
-  cdk:
+  compile:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
