@@ -28,7 +28,7 @@
     "typescript": "3.8.3"
   },
   "dependencies": {
-    "puppeteer": "3.0.1",
+    "puppeteer": "3.0.2",
     "request": "2.88.2",
     "request-promise": "4.2.5"
   }
