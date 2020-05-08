@@ -23,7 +23,7 @@
     "@types/node": "10.17.21",
     "@types/puppeteer": "2.0.1",
     "@types/request-promise": "4.1.46",
-    "gts": "2.0.0",
+    "gts": "2.0.1",
     "ts-node": "8.10.1",
     "typescript": "3.8.3"
   },
