@@ -20,7 +20,7 @@
     "posttest": "npm run check"
   },
   "devDependencies": {
-    "@types/node": "10.17.21",
+    "@types/node": "10.17.24",
     "@types/puppeteer": "2.0.1",
     "@types/request-promise": "4.1.46",
     "gts": "2.0.1",
