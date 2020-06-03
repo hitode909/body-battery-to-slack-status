@@ -21,14 +21,14 @@
   },
   "devDependencies": {
     "@types/node": "10.17.24",
-    "@types/puppeteer": "2.0.1",
+    "@types/puppeteer": "3.0.0",
     "@types/request-promise": "4.1.46",
     "gts": "2.0.1",
     "ts-node": "8.10.1",
     "typescript": "3.9.3"
   },
   "dependencies": {
-    "puppeteer": "3.0.4",
+    "puppeteer": "3.3.0",
     "request": "2.88.2",
     "request-promise": "4.2.5"
   }
