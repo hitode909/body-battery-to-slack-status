@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "10.17.51",
-    "@types/puppeteer": "5.4.0",
+    "@types/puppeteer": "5.4.7",
     "@types/request-promise": "4.1.46",
     "gts": "3.1.0",
     "ts-node": "8.10.2",
